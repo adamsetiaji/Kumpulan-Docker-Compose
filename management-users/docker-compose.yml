@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    container_name: user-management-api
+    ports:
+      - "8080:8000"  # Mapping port 8080 ke port 8000 pada container
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1  # Memastikan log Python keluar dengan benar
+    extra_hosts:
+      - "redis:172.17.0.1"  # Gunakan IP docker host untuk terhubung ke Redis
