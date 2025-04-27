@@ -120,11 +120,12 @@ services:
     container_name: task-dashboard-1
     restart: unless-stopped
     ports:
-      - "6000:6000"
+      - "5500:5500"
     environment:
-      - BASE_URL=http://user-management-1:5000  # Gunakan nama service internal
+      - BASE_URL=http://141.95.17.202:5000
       - CAPTCHA_SERVER=http://141.95.17.202:4000/status
-      - PORT=6000
+      - PORT=5500
+      - FLASK_ENV=production
     networks:
       - app-network
     depends_on:
@@ -159,7 +160,7 @@ networks:
     name: bridge
 
 x-casaos:
-  port_map: "6000"
+  port_map: "5500"
   scheme: http
   title:
     custom: Task Management System 1
