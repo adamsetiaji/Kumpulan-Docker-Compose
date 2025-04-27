@@ -112,48 +112,58 @@ x-casaos:
 - **URL**: `http://IP:6000-6010`
 
 ```yaml
-version: '3'
+version: '3.8'
+
 services:
-  task-dashboard:
-    container_name: task-dashboard-{NUMBER}
+  task-dashboard-1:
     image: adamsetiaji/task-dashboard:latest
+    container_name: task-dashboard-1
+    restart: unless-stopped
     ports:
-      - "6000:6000" # 6000-6010
-    restart: always
+      - "6000:6000"
     environment:
-      - PORT=6000 # 6000-6010
-      - BASE_URL=http://{IP-USER-MANAGEMENT}:{PORT-USER-MANAGEMENT} 
-      - CAPTCHA_SERVER=http://{IP-CAPTCHA-SERVICE}:{PORT-CAPTCHA-SERVICE}/status
-  user-management:
-    container_name: user-management
+      - BASE_URL=http://user-management-1:5000  # Gunakan nama service internal
+      - CAPTCHA_SERVER=http://141.95.17.202:4000/status
+      - PORT=6000
+    networks:
+      - app-network
+    depends_on:
+      - user-management-1
+
+  user-management-1:
     image: adamsetiaji/user-management:latest
+    container_name: user-management-1
     ports:
-      - "5000:5000" # 5000-5010
+      - "5000:5000"
     environment:
-      # Server Configuration
       - HOST=0.0.0.0
-      - PORT=5000 # 5000-5010
-      # Redis Configuration
-      - DIS_HOST=172.17.0.1  # IP Host Docker
-      - DIS_PORT=6379  # Port Redis Database
+      - PORT=5000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - REDIS_PASSWORD=
       - REDIS_DB=0
-      # Application Settings
       - LOG_LEVEL=INFO
-      # Surfebe Settings
       - VERSION_SURFEBE=182
-    volumes:
-      - redis_data:/data
     restart: unless-stopped
-volumes:
-  redis_data:
+    networks:
+      - app-network
+      - default
+    external_links:
+      - redis
+
+networks:
+  app-network:
+    driver: bridge
+  default:
+    external: true
+    name: bridge
+
 x-casaos:
-  is_uncontrolled: false
-  port_map: "6000" # 6000-6010
+  port_map: "6000"
   scheme: http
   title:
-    custom: Task Dashboard {NUMBER}
-    en_us: task-dashboard-{NUMBER}
+    custom: Task Management System 1
+    en_us: Task Management System 1
 ```
 
 ## Catatan Penggunaan
