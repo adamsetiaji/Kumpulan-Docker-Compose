@@ -1,5 +1,10 @@
 # Kumpulan Docker Compose
 
+## Install CasaOs
+```
+curl -fsSL https://get.casaos.io | sudo bash
+```
+
 Repositori ini berisi kumpulan file Docker Compose untuk berbagai layanan.
 
 ## Daftar Layanan
