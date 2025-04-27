@@ -115,34 +115,35 @@ x-casaos:
 version: '3.8'
 
 services:
-  task-dashboard-1:
+  task-dashboard-2:
     image: adamsetiaji/task-dashboard:latest
-    container_name: task-dashboard-1
+    container_name: task-dashboard-2
     restart: unless-stopped
     ports:
-      - "5500:5500"
+      - "5501:5501"
     environment:
-      - BASE_URL=http://141.95.17.202:5000
+      - BASE_URL=http://141.95.17.202:5001
       - CAPTCHA_SERVER=http://141.95.17.202:4000/status
-      - PORT=5500
+      - PORT=5501
       - FLASK_ENV=production
     networks:
       - app-network
     depends_on:
-      - user-management-1
+      - user-management-2
 
-  user-management-1:
+  user-management-2:
     image: adamsetiaji/user-management:latest
-    container_name: user-management-1
+    container_name: user-management-2
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5001"]  
     ports:
-      - "5000:5000"
+      - "5001:5001"
     environment:
       - HOST=0.0.0.0
-      - PORT=5000
+      - PORT=5001
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=
-      - REDIS_DB=0
+      - REDIS_DB=1
       - LOG_LEVEL=INFO
       - VERSION_SURFEBE=182
     restart: unless-stopped
@@ -160,11 +161,11 @@ networks:
     name: bridge
 
 x-casaos:
-  port_map: "5500"
+  port_map: "5501"
   scheme: http
   title:
-    custom: Task Management System 1
-    en_us: Task Management System 1
+    custom: Task Management System 2
+    en_us: Task Management System 2
 ```
 
 ## Catatan Penggunaan
