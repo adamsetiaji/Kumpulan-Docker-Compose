@@ -1,0 +1,30 @@
+version: '3'
+services:
+  captcha-solver:
+    container_name: captcha-solver
+    labels:
+      icon: https://raw.githubusercontent.com/adamsetiaji/list-logo/refs/heads/main/recaptcha-solver.png
+    image: adamsetiaji/captcha-solver:latest
+    ports:
+      - "3000:3000"
+    restart: always
+    environment:
+      - STATUS_FILE=status.json
+      - TIME_VALID_GRESPONSE=110
+      - TIME_RELOAD_GRESPONSE=600
+      - WEBSITE_URL=https://surfe.be
+      - WEBSITE_KEY=6LfMEAwTAAAAAK5MkDsHyDg-SE7wisIDM1-5mDQs
+      - CAPSOLVER_API_KEY=CAP-921B178849E6366D5D57165C2D4C9F51C620A8155696A497CBA21AB82423DB45
+
+x-casaos:
+  author: self
+  category: self
+  hostname: ""
+  icon: https://raw.githubusercontent.com/adamsetiaji/list-logo/refs/heads/main/recaptcha-solver.png
+  index: /status
+  is_uncontrolled: false
+  port_map: "3000"
+  scheme: http
+  title:
+    custom: Recaptcha Solver
+    en_us: captcha-solver
