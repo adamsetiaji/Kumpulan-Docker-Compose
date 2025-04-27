@@ -1,0 +1,24 @@
+version: '3'
+services:
+  captcha-service:
+    container_name: captcha-service
+    image: adamsetiaji/captcha-service:latest
+    ports:
+      - "4000:4000"
+    restart: always
+    environment:
+      - PORT=4000
+      - CAPTCHA_SOLVER_URL=http://IP:PORT/status
+      - DEBUG=True
+
+x-casaos:
+  author: self
+  category: self
+  hostname: ""
+  index: /status
+  is_uncontrolled: false
+  port_map: "4000"
+  scheme: http
+  title:
+    custom: Captcha Service
+    en_us: captcha-service
