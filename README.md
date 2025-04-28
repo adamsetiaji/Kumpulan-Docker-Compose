@@ -71,7 +71,8 @@ x-casaos:
 - **URL**: `http://IP:4000`
 
 ```yaml
-version: '3'
+version: '3.8'
+
 services:
   captcha-service:
     container_name: captcha-service
@@ -81,8 +82,9 @@ services:
     restart: always
     environment:
       - PORT=4000
-      - CAPTCHA_SOLVER_URL=http://IP:PORT/status
+      - CAPTCHA_SOLVER_URL=http://141.95.17.202:3000/status
       - DEBUG=True
+
   redis:
     image: redis:latest
     container_name: redis
@@ -90,9 +92,18 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    entrypoint: |
+      sh -c "
+      echo 'appendonly yes' > /data/redis.conf && \
+      echo 'appendfsync everysec' >> /data/redis.conf && \
+      echo 'dir /data' >> /data/redis.conf && \
+      redis-server /data/redis.conf
+      "
     restart: unless-stopped
+
 volumes:
   redis_data:
+
 x-casaos:
   author: self
   category: self
@@ -104,6 +115,7 @@ x-casaos:
   title:
     custom: Captcha Service
     en_us: captcha-service
+
 ```
 
 ### 4. Task Dashboard & User Management
