@@ -44,30 +44,59 @@ x-casaos:
     en_us: captcha-solver
 ```
 
-### 2. Redis Insight
-**URL**: `http://IP:5540` | `http://IP:3030`
+### 2. Mongo Express & MongoDB
+- **Mongo Express**: Port 8081
+- **MongoDB**: Port 27017
+- **URL**: `http://IP:8081`
 
 ```yaml
 version: '3.8'
 services:
-  redisinsight:
-    image: redis/redisinsight:latest
-    container_name: redisinsight
+  mongo-express:
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=KeminMencret2219
+
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=KeminMencret2219
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:KeminMencret2219@host.docker.internal:27017/
+    image: mongo-express:latest
     ports:
-      - "5540:5540"
+      - target: 8081
+        published: "8081"
+        protocol: tcp
     restart: unless-stopped
+    network_mode: bridge
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: KeminMencret2219
+    volumes:
+      - /DATA/AppData/mongodb_data:/data/db
+      - /DATA/AppData/mongodb_config:/data/configdb
+    restart: unless-stopped
+    network_mode: bridge
+    
 x-casaos:
-  icon: https://icon.casaos.io/main/all/redis.png
-  port_map: "5540"
+  index: /
+  port_map: "8081"
   scheme: http
   title:
-    custom: Redis Insight
-    en_us: redis-insight
+    custom: Mongo Express & MongoDB
+    en_us: Mongo Express & MongoDB
+
 ```
 
-### 3. Captcha Service & Redis Database
+### 3. Captcha Service
 - **Captcha Service**: Port 4000
-- **Redis**: Port 6379 | 3737
 - **URL**: `http://IP:4000`
 
 ```yaml
@@ -82,40 +111,20 @@ services:
     restart: always
     environment:
       - PORT=4000
-      - CAPTCHA_SOLVER_URL=http://141.95.17.202:3000/status
+      - CAPTCHA_SOLVER_URL=http://host.docker.internal:3000/status
       - DEBUG=True
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    entrypoint: |
-      sh -c "
-      echo 'appendonly yes' > /data/redis.conf && \
-      echo 'appendfsync everysec' >> /data/redis.conf && \
-      echo 'dir /data' >> /data/redis.conf && \
-      redis-server /data/redis.conf
-      "
-    restart: unless-stopped
-
-volumes:
-  redis_data:
+    network_mode: bridge
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 x-casaos:
-  author: self
-  category: self
   hostname: ""
   index: /status
-  is_uncontrolled: false
   port_map: "4000"
   scheme: http
   title:
     custom: Captcha Service
     en_us: captcha-service
-
 ```
 
 ### 4. Task Dashboard & User Management
@@ -127,57 +136,56 @@ x-casaos:
 version: '3.8'
 
 services:
-  task-dashboard-2:
+  task-dashboard-3:
     image: adamsetiaji/task-dashboard:latest
-    container_name: task-dashboard-2
+    container_name: task-dashboard-3
     restart: unless-stopped
     ports:
-      - "5501:5501"
+      - "5502:5502"
     environment:
-      - BASE_URL=http://141.95.17.202:5001
-      - CAPTCHA_SERVER=http://141.95.17.202:4000/status
-      - PORT=5501
+      - BASE_URL=http://host.docker.internal:5002
+      - CAPTCHA_SERVER=http://host.docker.internal:4000/status
+      - PORT=5502
       - FLASK_ENV=production
     networks:
-      - app-network
+      - bridge
     depends_on:
-      - user-management-2
+      - user-management-3
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
-  user-management-2:
+  user-management-3:
     image: adamsetiaji/user-management:latest
-    container_name: user-management-2
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5001"]  
+    container_name: user-management-3
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5002"]
     ports:
-      - "5001:5001"
+      - "5002:5002"
     environment:
       - HOST=0.0.0.0
-      - PORT=5001
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=
-      - REDIS_DB=1
+      - PORT=5002
+      - MONGODB_HOST=host.docker.internal
+      - MONGODB_PORT=27017
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=KeminMencret2219
+      - MONGODB_DATABASE=user-management-3
       - LOG_LEVEL=INFO
       - VERSION_SURFEBE=182
     restart: unless-stopped
     networks:
-      - app-network
-      - default
-    external_links:
-      - redis
+      - bridge
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
 networks:
-  app-network:
+  bridge:
     driver: bridge
-  default:
-    external: true
-    name: bridge
 
 x-casaos:
-  port_map: "5501"
+  port_map: "5502"
   scheme: http
   title:
-    custom: Task Management System 2
-    en_us: Task Management System 2
+    custom: Task Management System-3
+    en_us: Task Management System-3
 ```
 
 ## Catatan Penggunaan
