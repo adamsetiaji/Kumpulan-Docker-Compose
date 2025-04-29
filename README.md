@@ -128,9 +128,9 @@ x-casaos:
 ```
 
 ### 4. Task Dashboard & User Management
-- **Task Dashboard**: Port 6000-6010
+- **Task Dashboard**: Port 5500-5510
 - **User Management**: Port 5000-5010
-- **URL**: `http://IP:6000-6010`
+- **URL**: `http://IP:5500-5510`
 
 ```yaml
 version: '3.8'
